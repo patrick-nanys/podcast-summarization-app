@@ -1,4 +1,4 @@
-from subprocess import Popen, PIPE, STDOUT
+import subprocess
 import time
 
 if __name__ == '__main__':
@@ -7,10 +7,17 @@ if __name__ == '__main__':
     WHISPER_MAIN_LOCATION = './whisper_models/main.exe'
     WHISPER_MODEL_LOCATION = './whisper_models/ggml-model-whisper-small.bin'
 
+    #Whisper only works with wav files. If the input is an mp3, it has to be converted. A handy method for this is using ffmpeg, which has to be added to path before running the script.
     target_file_name = 'bryan_gee_short.wav'
+    
+    if target_file_name.endswith('mp3'):
+        new_target_file_name = target_file_name[:-3] + 'wav'
+        subprocess.run(['ffmpeg', '-i', target_file_name, '-ar', '16000', '-ac', '1', '-b:a', '96K', '-acodec', 'pcm_s16le', new_target_file_name])
+        target_file_name = new_target_file_name
+    
     thread_count = '4'
 
-    p = Popen([WHISPER_MAIN_LOCATION, '-m', WHISPER_MODEL_LOCATION, '-t', thread_count, '-f', target_file_name], stdin=PIPE, stdout=PIPE, stderr=STDOUT)
+    p = subprocess.Popen([WHISPER_MAIN_LOCATION, '-m', WHISPER_MODEL_LOCATION, '-t', thread_count, '-f', target_file_name], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
     #Monitoring the result of the subprocess call, writing the lines to a text file and printing the time it takes for each processing step
     start = time.perf_counter()
@@ -28,7 +35,10 @@ if __name__ == '__main__':
         interval = end-start
 
         #write into the buffer
-        if '[' in line :
+        if line.startswith('[') :
+            line = line.lstrip('[')
+            line = line.replace(' --> ', ';')
+            line = line.replace(']   ', ';')
             lines.append(line)
         else:
             misc_lines.append(line)
@@ -38,7 +48,7 @@ if __name__ == '__main__':
         if interval > 1:
             print(interval)
             if not first_file_write:
-                with open(f'{target_file_name}_{file_number}.txt', 'w') as file:
+                with open(f'{target_file_name}_{file_number}.csv', 'w') as file:
                     file.writelines(lines)
                     file_number += 1
                     lines = []
@@ -48,7 +58,7 @@ if __name__ == '__main__':
         start = time.perf_counter()
 
     #at the end the buffer is always written out
-    with open(f'{target_file_name}_{file_number}.txt', 'w') as file:
+    with open(f'{target_file_name}_{file_number}.csv', 'w') as file:
         file.writelines(lines)
 
     #metadata returned by the model is saved as well
