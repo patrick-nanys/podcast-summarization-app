@@ -8,7 +8,7 @@ if __name__ == '__main__':
     WHISPER_MODEL_LOCATION = './whisper_models/ggml-model-whisper-small.bin'
 
     #Whisper only works with wav files. If the input is an mp3, it has to be converted. A handy method for this is using ffmpeg, which has to be added to path before running the script.
-    target_file_name = 'bryan_gee_short.wav'
+    target_file_name = '2minutepaper.mp3'
     
     if target_file_name.endswith('mp3'):
         new_target_file_name = target_file_name[:-3] + 'wav'
@@ -29,7 +29,7 @@ if __name__ == '__main__':
     first_file_write = True
 
     for line in p.stdout:
-        line = line.decode('ascii').strip('\n') #stripping the newline at the end so it does not make 2 new lines
+        line = line.decode('utf-8').strip('\n') #stripping the newline at the end so it does not make 2 new lines
 
         end = time.perf_counter()
         interval = end-start
