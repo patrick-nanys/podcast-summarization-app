@@ -1,0 +1,7 @@
+git+https://github.com/huggingface/transformers.git
+sentencepiece
+torch
+torchaudio
+datasets
+soundfile
+speechbrain
