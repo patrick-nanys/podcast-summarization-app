@@ -5,3 +5,4 @@ torchaudio
 datasets
 soundfile
 speechbrain
+fastapi==0.95.0
