@@ -1,5 +1,6 @@
 import subprocess
 import time
+import os
 
 def whisper_asr(target_file_name):
     #parameters to the subprocess call
@@ -8,7 +9,8 @@ def whisper_asr(target_file_name):
 
     #Whisper only works with wav files. If the input is an mp3, it has to be converted. A handy method for this is using ffmpeg, which has to be added to path before running the script.
     if target_file_name.endswith('mp3'):
-        new_target_file_name = target_file_name[:-3] + 'wav'
+        target_file_name_base, ext = os.path.splitext(target_file_name)
+        new_target_file_name = target_file_name_base + '.wav'
         subprocess.run(['ffmpeg', '-i', target_file_name, '-ar', '16000', '-ac', '1', '-b:a', '96K', '-acodec', 'pcm_s16le', new_target_file_name])
         target_file_name = new_target_file_name
     
