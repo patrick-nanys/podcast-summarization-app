@@ -1,15 +1,12 @@
 import subprocess
 import time
 
-if __name__ == '__main__':
-
+def whisper_asr(target_file_name):
     #parameters to the subprocess call
     WHISPER_MAIN_LOCATION = './whisper_models/main.exe'
     WHISPER_MODEL_LOCATION = './whisper_models/ggml-model-whisper-small.bin'
 
     #Whisper only works with wav files. If the input is an mp3, it has to be converted. A handy method for this is using ffmpeg, which has to be added to path before running the script.
-    target_file_name = '2minutepaper.wav'
-    
     if target_file_name.endswith('mp3'):
         new_target_file_name = target_file_name[:-3] + 'wav'
         subprocess.run(['ffmpeg', '-i', target_file_name, '-ar', '16000', '-ac', '1', '-b:a', '96K', '-acodec', 'pcm_s16le', new_target_file_name])
@@ -48,10 +45,11 @@ if __name__ == '__main__':
         if interval > 1:
             print(interval)
             if not first_file_write:
-                with open(f'{target_file_name}_{file_number}.csv', 'w') as file:
-                    file.writelines(lines)
-                    file_number += 1
-                    lines = []
+                if lines:
+                    with open(f'{target_file_name}_{file_number}.csv', 'w') as file:
+                        file.writelines(lines)
+                        file_number += 1
+                        lines = []
             else:
                 first_file_write = False
 
@@ -64,4 +62,8 @@ if __name__ == '__main__':
     #metadata returned by the model is saved as well
     with open(f'{target_file_name}_misc.txt', 'w') as file:
         file.writelines(misc_lines)
-            
+
+
+if __name__ == '__main__':
+    target_file_name = '2minutepaper.wav'
+    whisper_asr(target_file_name)
