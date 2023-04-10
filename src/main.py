@@ -3,19 +3,11 @@ from fastapi import FastAPI, Request
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
-from uuid import UUID
-from pydantic import BaseModel, Field, EmailStr
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
 staticfiles = StaticFiles(directory="static")
 app.mount("/static", staticfiles, name="static")
-
-class User(BaseModel):
-    id: UUID
-    username: str = Field(min_length=4)
-    email: EmailStr
-    password: str
 
 @app.get("/", response_class=HTMLResponse)
 def index(request: Request):
