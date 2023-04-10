@@ -8,3 +8,6 @@ class User(BaseModel):
     username: str = Field(min_length=4)
     email: EmailStr
     password: str
+
+    class Config:
+        orm_mode = True

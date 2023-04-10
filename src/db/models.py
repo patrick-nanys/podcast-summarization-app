@@ -1,6 +1,6 @@
 """ DB Models file for SQLAlchemy """
 from sqlalchemy import Column, String
-from uuid_gen import GUID
+from .uuid_gen import GUID
 import uuid
 # from sqlalchemy.orm import relationship
 
@@ -12,8 +12,8 @@ class User(Base):
     """
     __tablename__ = "users"
 
-    id = Column(GUID(), primare_key=True, index=True, default=lambda:str(uuid.uuid4()))
-    username = Column(String, unique=True, index=True)
-    email = Column(String, unique=True, index=True)
-    password = Column(String)
+    id = Column(GUID(), primary_key=True, nullable=False, index=True, default=lambda:str(uuid.uuid4()))
+    username = Column(String, unique=True, nullable=False, index=True)
+    email = Column(String, unique=True, nullable=False, index=True)
+    encrypted_password = Column(String, nullable=False)
     # podcasts = relationship("Podcast", back_populates="owner") # To check later
