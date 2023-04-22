@@ -2,7 +2,6 @@
 from uuid import UUID
 from pydantic import BaseModel, Field, EmailStr
 
-
 class UserBase(BaseModel):
     email: EmailStr
     username: str = Field(min_length=4)

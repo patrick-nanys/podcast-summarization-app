@@ -18,9 +18,15 @@ def create_user(db: Session, user: schemas.UserCreate):
     db.refresh(db_user)
     return db_user
 
-def get_user(db: Session, username: str):
+def get_user_by_username(db: Session, username: str):
     """
-    Get user by UUID.
+    Get user by username. Needed for first user registration.
     """
     return db.query(models.User).filter(models.User.username == username).first()
+
+def get_user_by_id(db: Session, user_id: UUID):
+    """
+    Get user by UUID. Needed for user information display
+    """
+    return db.query(models.User).filter(models.User.id == user_id).first()
 
