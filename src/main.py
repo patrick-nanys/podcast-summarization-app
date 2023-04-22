@@ -5,7 +5,6 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 
-
 from db.database import SessionLocal, engine
 from db import schemas, crud, models
 
@@ -37,11 +36,11 @@ def signup(request: Request):
     return templates.TemplateResponse("register.html", {"request": request})
 
 @app.post("/signup/", response_model=schemas.User)
-def signup(user: schemas.User, db: Session = Depends(get_db)):
+def signup(user: schemas.UserCreate, db: Session = Depends(get_db)):
     """
     Signup route. (POST)
     """
-    db_user = crud.get_user(db, id=user.id)
+    db_user = crud.get_user(db, username=user.username)
     if db_user:
         raise HTTPException(status_code=400, detail="User already exists")
     return crud.create_user(db=db, user=user)

@@ -29,7 +29,7 @@ class GUID(TypeDecorator):
                 # hexstring
                 return "%.32x" % value.int
 
-    def process_result_value(self, value):
+    def process_res_value(self, value):
         if value is None:
             return value
         else:

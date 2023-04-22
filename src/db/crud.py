@@ -5,22 +5,22 @@ import bcrypt
 
 from . import models, schemas
 
-def create_user(db: Session, user: schemas.User):
+def create_user(db: Session, user: schemas.UserCreate):
     """
     Create user and add to Database.
     """
-    pw = user.password.encode('utf-8')
+    pw = user.password
     salt = bcrypt.gensalt()
-    encrypted_password = bcrypt.hashpw(pw, salt)
-    db_user = models.User(username=user.username, email=user.email, encrypted_password=encrypted_password)
+    hashed_password = bcrypt.hashpw(pw, salt)
+    db_user = models.User(username=user.username, email=user.email, hashed_password=hashed_password)
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
     return db_user
 
-def get_user(db: Session, user_id: UUID):
+def get_user(db: Session, username: str):
     """
     Get user by UUID.
     """
-    return db.query(models.User).filter(models.User.id == user_id).first()
+    return db.query(models.User).filter(models.User.username == username).first()
 
