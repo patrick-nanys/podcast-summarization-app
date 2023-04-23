@@ -57,6 +57,17 @@ def login(request: Request):
     """
     return templates.TemplateResponse("login.html", {"request": request})
 
+@app.get("/users/", response_model=list[schemas.User])
+def get_users(start_from: int = 0, until: int = 10, db: Session = Depends(get_db)):
+    """
+    Display all users information. (GET)
+
+    TODO:
+        + Add authorization check
+    """
+    users_list = crud.get_users(db=db, start_from=start_from, until=until)
+    return users_list
+
 @app.get("/user_info/{user_id}", response_model=schemas.User)
 def get_user_info(user_id: UUID, db: Session = Depends(get_db)):
     """

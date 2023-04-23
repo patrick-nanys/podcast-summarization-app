@@ -18,6 +18,12 @@ def create_user(db: Session, user: schemas.UserCreate):
     db.refresh(db_user)
     return db_user
 
+def get_users(db: Session, start_from: int = 0, until: int = 10):
+    """
+    Get all users information.
+    """
+    return db.query(models.User).offset(start_from).limit(until).all()
+
 def get_user_by_username(db: Session, username: str):
     """
     Get user by username. Needed for first user registration.
