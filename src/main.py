@@ -5,6 +5,8 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 from uuid import UUID
+from utils.middleware import AWS
+from pathlib import Path
 
 from db.database import SessionLocal, engine
 from db import schemas, crud, models
@@ -14,6 +16,10 @@ models.Base.metadata.create_all(bind=engine)
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
 app.mount("/static", StaticFiles(directory="static"), name="static")
+
+s3_handler = AWS('eu-west-1', 'X', 'X') # Fill out creds
+file_name = Path("src/static/mp3/music.mp3")
+s3_handler.upload_to_bucket(file_name, 'breviocast-prod')
 
 def get_db():
     db = SessionLocal()
