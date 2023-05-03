@@ -7,6 +7,9 @@ import torchaudio
 from speechbrain.pretrained import EncoderClassifier
 import os
 import numpy as np
+from elevenlabslib import ElevenLabsUser
+from pydub import AudioSegment
+import io
 
 def custom_speaker_embeddings(path, custom_tensor_path=None):
     classifier = EncoderClassifier.from_hparams(source="speechbrain/spkrec-xvect-voxceleb")
@@ -61,6 +64,21 @@ def speecht5_tts(input_text, embedding_type, custom_embedding_path = None, embed
 
     speech = model.generate_speech(inputs["input_ids"], speaker_embeddings, vocoder=vocoder)
     sf.write(output_path, speech.numpy(), samplerate=16000)
+
+#ElevenLabs TTS: This could be costly. Voice cloning is only a paid feature, free TTS: 10000 characters/month
+
+def elevenlabs_audio_bytes_from_chunk(input_text, API_KEY, voice_name):
+    user = ElevenLabsUser(API_KEY)
+    voice = user.get_voices_by_name(voice_name)[0]
+    returned_value = voice.generate_audio_bytes(input_text)
+
+    return returned_value
+
+def elevenlabs_tts(chunks, API_KEY, voice_name, output_path):
+    mp3_bytes = [elevenlabs_audio_bytes_from_chunk(chunk, API_KEY, voice_name) for chunk in chunks]
+    all_audio = b''.join(mp3_bytes)
+    recording = AudioSegment.from_file(io.BytesIO(all_audio), format="mp3")
+    recording.export(output_path, format='mp3') #ElevenLabs always returns mp3 bytes. Maybe it should be converted to wav with ffmpeg?
 
 if __name__ == '__main__':
 
