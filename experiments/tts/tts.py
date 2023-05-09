@@ -1,10 +1,3 @@
-from transformers import SpeechT5Processor, SpeechT5ForTextToSpeech, SpeechT5HifiGan
-from datasets import load_dataset
-import torch
-import torch.nn.functional as F
-import soundfile as sf
-import torchaudio
-from speechbrain.pretrained import EncoderClassifier
 import os
 import numpy as np
 from elevenlabslib import ElevenLabsUser
@@ -55,6 +48,14 @@ def get_speaker_embeddings(embedding_type, path=None, custom_tensor_path=None):
         return cmu_arctic_xvector_embeddings(embedding_type_to_index_mapper[embedding_type.lower()])
     
 def speecht5_tts(input_text, embedding_type, custom_embedding_path = None, embedding_tensor_path = None, output_path = 'tts_example.wav'):
+    from transformers import SpeechT5Processor, SpeechT5ForTextToSpeech, SpeechT5HifiGan
+    from datasets import load_dataset
+    import torch
+    import torch.nn.functional as F
+    import soundfile as sf
+    import torchaudio
+    from speechbrain.pretrained import EncoderClassifier
+
     processor = SpeechT5Processor.from_pretrained("microsoft/speecht5_tts")
     model = SpeechT5ForTextToSpeech.from_pretrained("microsoft/speecht5_tts")
     vocoder = SpeechT5HifiGan.from_pretrained("microsoft/speecht5_hifigan")
