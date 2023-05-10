@@ -17,9 +17,10 @@ app = FastAPI()
 templates = Jinja2Templates(directory="templates")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-s3_handler = AWS('eu-west-1', 'X', 'X') # Fill out creds
+s3_handler = AWS("eu-west-1", "X", "X")  # Fill out creds
 file_name = Path("src/static/mp3/music.mp3")
-s3_handler.upload_to_bucket(file_name, 'breviocast-prod')
+s3_handler.upload_to_bucket(file_name, "breviocast-prod")
+
 
 def get_db():
     db = SessionLocal()
@@ -28,6 +29,7 @@ def get_db():
     finally:
         db.close()
 
+
 @app.get("/", response_class=HTMLResponse)
 def index(request: Request):
     """
@@ -35,12 +37,14 @@ def index(request: Request):
     """
     return templates.TemplateResponse("index.html", {"request": request, "title": "BrevioCast"})
 
+
 @app.get("/signup/", response_class=HTMLResponse)
 def signup(request: Request):
     """
     Signup route. (GET)
     """
     return templates.TemplateResponse("register.html", {"request": request})
+
 
 @app.post("/signup/", response_model=schemas.User)
 def signup(user: schemas.UserCreate, db: Session = Depends(get_db)):
@@ -56,12 +60,14 @@ def signup(user: schemas.UserCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="User already exists")
     return crud.create_user(db=db, user=user)
 
+
 @app.get("/login/", response_class=HTMLResponse)
 def login(request: Request):
     """
     Login route. (GET)
     """
     return templates.TemplateResponse("login.html", {"request": request})
+
 
 @app.get("/users/", response_model=list[schemas.User])
 def get_users(start_from: int = 0, until: int = 10, db: Session = Depends(get_db)):
@@ -73,6 +79,7 @@ def get_users(start_from: int = 0, until: int = 10, db: Session = Depends(get_db
     """
     users_list = crud.get_users(db=db, start_from=start_from, until=until)
     return users_list
+
 
 @app.get("/user_info/{user_id}", response_model=schemas.User)
 def get_user_info(user_id: UUID, db: Session = Depends(get_db)):

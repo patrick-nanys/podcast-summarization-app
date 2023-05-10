@@ -5,6 +5,7 @@ import bcrypt
 
 from . import models, schemas
 
+
 def create_user(db: Session, user: schemas.UserCreate):
     """
     Create user and add to Database.
@@ -18,11 +19,13 @@ def create_user(db: Session, user: schemas.UserCreate):
     db.refresh(db_user)
     return db_user
 
+
 def get_users(db: Session, start_from: int = 0, until: int = 10):
     """
     Get all users information.
     """
     return db.query(models.User).offset(start_from).limit(until).all()
+
 
 def get_user_by_username(db: Session, username: str):
     """
@@ -30,9 +33,9 @@ def get_user_by_username(db: Session, username: str):
     """
     return db.query(models.User).filter(models.User.username == username).first()
 
+
 def get_user_by_id(db: Session, user_id: UUID):
     """
     Get user by UUID. Needed for user information display
     """
     return db.query(models.User).filter(models.User.id == user_id).first()
-

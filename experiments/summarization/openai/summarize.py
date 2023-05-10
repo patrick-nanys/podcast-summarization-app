@@ -7,8 +7,8 @@ import numpy as np
 API_COST_PER_THOUSAND_TOKENS = 0.002
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
-nltk.download('punkt')
-sent_detector = nltk.data.load('tokenizers/punkt/english.pickle')
+nltk.download("punkt")
+sent_detector = nltk.data.load("tokenizers/punkt/english.pickle")
 
 
 def split_to_sentences(text: str):
@@ -23,7 +23,7 @@ def match_chunks_with_timestamps(chunk_token_counts, timestamps_dict):
         if i == 0:
             chunk_start_timestamps.append(list(timestamps_dict.values())[0])
         else:
-            value_to_search = sum_token_counts[i-1]
+            value_to_search = sum_token_counts[i - 1]
             max_idx = np.max(dict_keys_numpy[dict_keys_numpy <= value_to_search])
             chunk_start_timestamps.append(timestamps_dict[max_idx])
 
@@ -31,7 +31,7 @@ def match_chunks_with_timestamps(chunk_token_counts, timestamps_dict):
 
 
 def create_chunks_from_text(text: str, token_threshold, timestamps_dict, model="gpt-3.5-turbo-0301"):
-    print(f'Text is {num_tokens_from_text(text)} tokens long.')
+    print(f"Text is {num_tokens_from_text(text)} tokens long.")
     sentences = split_to_sentences(text)
     # list of texts and their token counts
     texts: list[tuple] = []
@@ -41,15 +41,15 @@ def create_chunks_from_text(text: str, token_threshold, timestamps_dict, model="
             texts.append((sent, sent_token_count))
         else:
             current_sent, current_token_count = texts[-1]
-            texts[-1] = (current_sent + ' ' + sent, current_token_count + sent_token_count)
-            
+            texts[-1] = (current_sent + " " + sent, current_token_count + sent_token_count)
+
     chunk_token_counts = [count for chunk, count in texts]
-    print('Final chunks token counts: ', chunk_token_counts)
+    print("Final chunks token counts: ", chunk_token_counts)
     chunk_start_timestamps = match_chunks_with_timestamps(chunk_token_counts, timestamps_dict)
-    
+
     chunks = [chunk for chunk, token_count in texts]
-    print(f'Split the text into {len(chunks)} chunks.')
-    print('chunk_start_timestamps', chunk_start_timestamps)
+    print(f"Split the text into {len(chunks)} chunks.")
+    print("chunk_start_timestamps", chunk_start_timestamps)
     return chunks, chunk_start_timestamps
 
 
@@ -58,7 +58,7 @@ def num_tokens_from_text(text, model="gpt-3.5-turbo-0301") -> int:
         encoding = tiktoken.encoding_for_model(model)
     except KeyError:
         encoding = tiktoken.get_encoding("cl100k_base")
-    
+
     return len(encoding.encode(text))
 
 
@@ -67,20 +67,19 @@ def create_message(prompt: str, text: str) -> list[dict]:
 
 
 def summarize_chunks(chunks: list[str]):
-    prompt = "Summarize this podcast without including any kind of ads. Give only whole sentences. Do not have an intro."
-    
+    prompt = (
+        "Summarize this podcast without including any kind of ads. Give only whole sentences. Do not have an intro."
+    )
+
     responses = []
     for chunk in chunks:
-        responses.append(openai.ChatCompletion.create(
-          model="gpt-3.5-turbo",
-          messages=create_message(prompt, chunk)
-        ))
-        
+        responses.append(openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=create_message(prompt, chunk)))
+
     return responses
 
 
 def calculate_cost(responses: list[dict]) -> float:
-    return sum([resp['usage']['total_tokens'] for resp in responses]) / 1000 * API_COST_PER_THOUSAND_TOKENS
+    return sum([resp["usage"]["total_tokens"] for resp in responses]) / 1000 * API_COST_PER_THOUSAND_TOKENS
 
 
 def summarize_text(text: str, timestamps_dict):
@@ -89,17 +88,18 @@ def summarize_text(text: str, timestamps_dict):
 
     # Check for errors
     for i, resp in enumerate(responses):
-        finish_reason = resp['choices'][0]['finish_reason']
-        if finish_reason != 'stop':
-            print(f'There was a problem with generating a summary for chunk {i}. Reason: {finish_reason}.')
-            
-    print('Cost of summary was: ', calculate_cost(responses))
-    
-    summarized_chunks = [resp['choices'][0]['message']['content'] for resp in responses]
-    return ' '.join(summarized_chunks), summarized_chunks, chunk_start_timestamps
+        finish_reason = resp["choices"][0]["finish_reason"]
+        if finish_reason != "stop":
+            print(f"There was a problem with generating a summary for chunk {i}. Reason: {finish_reason}.")
 
-if __name__=='__main__':
-    long_text = '''Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur ac dapibus est. Proin finibus arcu nibh, et vehicula purus malesuada vitae. In non feugiat elit. Maecenas tincidunt venenatis porta. Sed mauris justo, pretium ac urna sit amet, venenatis volutpat arcu. Donec et nisl semper odio mattis porttitor nec at nulla. Quisque eu facilisis eros. Etiam at nisl et elit vestibulum mattis. Suspendisse id quam sed neque tempus dictum. Pellentesque in erat aliquet, dapibus mi a, luctus nisl. Aliquam vitae pulvinar neque. Pellentesque sed faucibus leo. Praesent non congue magna, sit amet finibus sem. Donec molestie orci placerat molestie tempus. Duis mollis, lorem id efficitur molestie, enim quam blandit quam, at venenatis orci urna sit amet felis. Fusce varius semper justo, ut tincidunt elit ultricies eu.
+    print("Cost of summary was: ", calculate_cost(responses))
+
+    summarized_chunks = [resp["choices"][0]["message"]["content"] for resp in responses]
+    return " ".join(summarized_chunks), summarized_chunks, chunk_start_timestamps
+
+
+if __name__ == "__main__":
+    long_text = """Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur ac dapibus est. Proin finibus arcu nibh, et vehicula purus malesuada vitae. In non feugiat elit. Maecenas tincidunt venenatis porta. Sed mauris justo, pretium ac urna sit amet, venenatis volutpat arcu. Donec et nisl semper odio mattis porttitor nec at nulla. Quisque eu facilisis eros. Etiam at nisl et elit vestibulum mattis. Suspendisse id quam sed neque tempus dictum. Pellentesque in erat aliquet, dapibus mi a, luctus nisl. Aliquam vitae pulvinar neque. Pellentesque sed faucibus leo. Praesent non congue magna, sit amet finibus sem. Donec molestie orci placerat molestie tempus. Duis mollis, lorem id efficitur molestie, enim quam blandit quam, at venenatis orci urna sit amet felis. Fusce varius semper justo, ut tincidunt elit ultricies eu.
 
 Fusce at tempus lacus, at placerat leo. Morbi nec volutpat mi, at accumsan metus. Vivamus feugiat tortor scelerisque feugiat molestie. Duis vitae venenatis felis. Pellentesque quis ultrices felis. Mauris lectus mauris, scelerisque ut sagittis eget, feugiat ut ex. Nunc vel diam dolor. Integer nec risus eu nulla varius viverra in id diam. Vestibulum ut turpis egestas, vestibulum nisi vitae, cursus nibh. Pellentesque id ipsum ac lectus fringilla gravida. Nunc dui justo, laoreet vel tristique vel, elementum eu nisl. Aenean at suscipit felis. Nullam elementum porttitor enim, id vehicula diam. Praesent tempor euismod pharetra. Maecenas sit amet vehicula enim, eget condimentum purus.
 
@@ -197,10 +197,9 @@ Morbi porttitor sem vitae nisl placerat accumsan. Aenean mattis massa quis digni
 
 Nam aliquam blandit arcu ut rhoncus. Mauris vestibulum, leo aliquam fringilla malesuada, enim tortor porta lectus, id facilisis turpis nunc non est. Quisque dapibus sapien est, vel vulputate lectus placerat et. Interdum et malesuada fames ac ante ipsum primis in faucibus. Cras eu quam varius, bibendum dolor vestibulum, ullamcorper velit. Maecenas accumsan nec odio dignissim tempus. Praesent eu ligula lacinia, consectetur diam eu, placerat elit. Ut tempus enim augue, tempus condimentum lectus commodo non. Proin sit amet neque euismod, lacinia nulla id, suscipit ex. Proin finibus erat sit amet ipsum efficitur efficitur. Aliquam in aliquet lorem.
 
-Proin cursus rutrum sem, nec rhoncus odio tincidunt at. Quisque quis congue nunc, et euismod arcu. Mauris ac odio sed erat scelerisque ultrices. Cras pharetra, neque non malesuada ultrices, lectus lorem finibus urna, nec vulputate arcu justo vel tortor. Praesent ac ligula massa. Sed rhoncus neque porttitor pulvinar posuere. Phasellus quis mauris molestie, dignissim diam ut, maximus justo. Nullam mattis libero at sem suscipit, a accumsan ex efficitur. Sed id pellentesque est, ut pellentesque nisl. Nam vestibulum lobortis faucibus. Pellentesque convallis finibus diam at varius. Phasellus pellentesque dictum felis, sit amet suscipit diam auctor in. Pellentesque in sem neque. Nunc pharetra odio at molestie maximus.'''
-
+Proin cursus rutrum sem, nec rhoncus odio tincidunt at. Quisque quis congue nunc, et euismod arcu. Mauris ac odio sed erat scelerisque ultrices. Cras pharetra, neque non malesuada ultrices, lectus lorem finibus urna, nec vulputate arcu justo vel tortor. Praesent ac ligula massa. Sed rhoncus neque porttitor pulvinar posuere. Phasellus quis mauris molestie, dignissim diam ut, maximus justo. Nullam mattis libero at sem suscipit, a accumsan ex efficitur. Sed id pellentesque est, ut pellentesque nisl. Nam vestibulum lobortis faucibus. Pellentesque convallis finibus diam at varius. Phasellus pellentesque dictum felis, sit amet suscipit diam auctor in. Pellentesque in sem neque. Nunc pharetra odio at molestie maximus."""
 
     char_counts = [0, 3000, 4000, 5000, 1340000]
-    timestamps = ['000', 'time3', '4', '5', '6']
+    timestamps = ["000", "time3", "4", "5", "6"]
     timestamp_dict = dict(zip(char_counts, timestamps))
     chunks = create_chunks_from_text(long_text, 3000, timestamp_dict)
