@@ -1,12 +1,14 @@
 """ FastAPI main file """
 from fastapi import FastAPI, Request, Depends, HTTPException
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 from uuid import UUID
 from utils.middleware import AWS
 from pathlib import Path
+import logging
+import re
 
 from db.database import SessionLocal, engine
 from db import schemas, crud, models
@@ -18,7 +20,7 @@ templates = Jinja2Templates(directory="templates")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 s3_handler = AWS("eu-west-1", "X", "X")  # Fill out creds
-file_name = Path("src/static/mp3/music.mp3")
+file_name = Path("static/mp3/music.mp3")
 s3_handler.upload_to_bucket(file_name, "breviocast-prod")
 
 
@@ -35,7 +37,9 @@ def index(request: Request):
     """
     Index route.
     """
-    return templates.TemplateResponse("index.html", {"request": request, "title": "BrevioCast"})
+    return templates.TemplateResponse(
+        "index.html", {"request": request, "title": "BrevioCast"}
+    )
 
 
 @app.get("/signup/", response_class=HTMLResponse)
@@ -94,3 +98,34 @@ def get_user_info(user_id: UUID, db: Session = Depends(get_db)):
     if user is None:
         return HTTPException(status_code=404, detail="User not found")
     return user
+
+
+@app.get("/request/", response_class=HTMLResponse)
+@app.post("/request/")
+async def request_podcast(request: Request):
+    """
+    Request Podcast route. (GET/POST)
+    """
+    if request.method == "GET":
+        return templates.TemplateResponse("request.html", {"request": request})
+    elif request.method == "POST":
+        requested_links = []
+        ytb_regex_pattern = r"^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?.*v=|v\/)|youtu\.be\/)([\w\-]{11})(?:$|[^\w\-])"
+        try:
+            form_data = await request.form()
+            url = form_data["url"]
+            match = re.search(ytb_regex_pattern, url)
+            if match:
+                requested_links.append(
+                    url
+                )  # TODO: insert in database instead of list pushing.
+                print(requested_links)
+                return {"message": f"your link {url} was submitted successfully!"}
+            else:
+                redirect_url = request.url_for("request_podcast")
+                return RedirectResponse(redirect_url, status_code=303)
+        except Exception as e:
+            logging.exception(f"caught exception: {e}")
+            return HTTPException(
+                status_code=500, detail="Server timeout, please try again."
+            )
