@@ -1,23 +1,22 @@
 """ Schemas file for pydantic. """
 from uuid import UUID
-from pydantic import BaseModel, Field, EmailStr
+from pydantic import BaseModel
+from authx.models import user
 
 
 # Users schemas
-class UserBase(BaseModel):
-    email: EmailStr
-    username: str = Field(min_length=4)
+class register(user.UserInRegister):
+    first_name: str
+    last_name: str
 
+class login(user.UserInLogin):
+    pass
 
-class UserCreate(UserBase):
-    password: str
+class user_update_username(user.UserInChangeUsername):
+    pass
 
-
-class User(UserBase):
-    id: UUID
-
-    class Config:
-        orm_mode = True  # needed for podcasts relationship
+class user_update_password(user.UserInChangePassword):
+    pass
 
 
 # Podcasts schemas
