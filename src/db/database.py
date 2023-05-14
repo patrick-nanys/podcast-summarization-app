@@ -1,12 +1,15 @@
-""" database file for SQLAlchemy """
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
+""" database file for db handling """
+import databases
+from authx import Authentication, EncodeDBBackend
 
-SQLALCHEMY_DATABASE_URL = "sqlite:///breviocast.db"
-
-engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
-
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-Base = declarative_base()
+auth = Authentication(
+    backend=EncodeDBBackend(
+        database=databases(
+            host="localhost",
+            port=5432,
+            user="x",
+            password="x",
+            database="breviocast",
+        ),
+    )
+)

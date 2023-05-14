@@ -7,34 +7,22 @@ from sqlalchemy.orm import Session
 from uuid import UUID
 from utils.middleware import AWS
 from pathlib import Path
-from authx import Authentication, User, RedisBackend
 import logging
 import re
 
-from db.database import SessionLocal, engine
+import db.database as db
 from db import schemas, crud, models
 
-models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
-auth = Authentication()
 templates = Jinja2Templates(directory="templates")
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
-auth.set_cache(RedisBackend)
 
 # This will be deleted later, just for testing purposes.
 # s3_handler = AWS("eu-west-1", "X", "X")  # Fill out creds
 # file_name = Path("static/mp3/music.mp3")
 # s3_handler.upload_to_bucket(file_name, "breviocast-prod")
-
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 
 @app.get("/", response_class=HTMLResponse)
