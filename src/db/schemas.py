@@ -9,11 +9,14 @@ class register(user.UserInRegister):
     first_name: str
     last_name: str
 
+
 class login(user.UserInLogin):
     pass
 
+
 class user_update_username(user.UserInChangeUsername):
     pass
+
 
 class user_update_password(user.UserInChangePassword):
     pass
