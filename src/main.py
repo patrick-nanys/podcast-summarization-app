@@ -11,16 +11,18 @@ import logging
 import re
 
 import db.database as db
+from utils import conf_helper
 from db import schemas, crud, models
 
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
+config = conf_helper.read_configuration()
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # This will be deleted later, just for testing purposes.
-# s3_handler = AWS("eu-west-1", "X", "X")  # Fill out creds
+# s3_handler = AWS("eu-west-1", config["AWS"]["aws_access_key_id"], config["AWS"]["aws_secret_access_key"])
 # file_name = Path("static/mp3/music.mp3")
 # s3_handler.upload_to_bucket(file_name, "breviocast-prod")
 

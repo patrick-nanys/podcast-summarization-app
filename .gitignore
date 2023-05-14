@@ -130,3 +130,6 @@ dmypy.json
 
 # Binary model saves
 *.bin
+
+# Configuration files
+*.ini
