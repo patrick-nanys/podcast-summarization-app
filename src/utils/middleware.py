@@ -16,6 +16,9 @@ class AWS:
         self.region = region
         self.key_id = key_id
         self.access_key = access_key
+        self.client = boto3.client(
+            "s3", region_name=self.region, aws_access_key_id=self.key_id, aws_secret_access_key=self.access_key
+        )
 
     def upload_to_bucket(self, filename: str, bucket: str, object_name=None):
         """
@@ -23,15 +26,13 @@ class AWS:
         """
         if object_name is None:
             object_name = os.path.basename(filename)
-        s3 = boto3.client(
-            "s3", region_name=self.region, aws_access_key_id=self.key_id, aws_secret_access_key=self.access_key
-        )
+        s3 = self.client
         try:
             with open(filename, "rb") as f:
                 s3.upload_fileobj(f, bucket, object_name)
-            response = boto3.client.list_objects_v2(
+            response = s3.list_objects_v2(
                 Bucket=bucket,
-                MaxKeys="2",
+                MaxKeys=2,
             )
             print(response)
         except ClientError as e:

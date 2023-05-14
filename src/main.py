@@ -37,9 +37,7 @@ def index(request: Request):
     """
     Index route.
     """
-    return templates.TemplateResponse(
-        "index.html", {"request": request, "title": "BrevioCast"}
-    )
+    return templates.TemplateResponse("index.html", {"request": request, "title": "BrevioCast"})
 
 
 @app.get("/signup/", response_class=HTMLResponse)
@@ -110,15 +108,15 @@ async def request_podcast(request: Request):
         return templates.TemplateResponse("request.html", {"request": request})
     elif request.method == "POST":
         requested_links = []
-        ytb_regex_pattern = r"^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?.*v=|v\/)|youtu\.be\/)([\w\-]{11})(?:$|[^\w\-])"
+        ytb_regex_pattern = (
+            r"^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?.*v=|v\/)|youtu\.be\/)([\w\-]{11})(?:$|[^\w\-])"
+        )
         try:
             form_data = await request.form()
             url = form_data["url"]
             match = re.search(ytb_regex_pattern, url)
             if match:
-                requested_links.append(
-                    url
-                )  # TODO: insert in database instead of list pushing.
+                requested_links.append(url)  # TODO: insert in database instead of list pushing.
                 print(requested_links)
                 return {"message": f"your link {url} was submitted successfully!"}
             else:
@@ -126,6 +124,4 @@ async def request_podcast(request: Request):
                 return RedirectResponse(redirect_url, status_code=303)
         except Exception as e:
             logging.exception(f"caught exception: {e}")
-            return HTTPException(
-                status_code=500, detail="Server timeout, please try again."
-            )
+            return HTTPException(status_code=500, detail="Server timeout, please try again.")
