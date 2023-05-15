@@ -1,19 +1,14 @@
-""" database file for db handling """
+""" database file for db handling (still in dev)"""
 import databases
+import asyncio
+import sqlalchemy
 from authx import Authentication, EncodeDBBackend
 
-from src.utils import conf_helper
+from utils import conf_helper
 
 config = conf_helper.read_configuration()
+db_url = f"postgresql://{config['dbSettings']['pg_username']}:{config['dbSettings']['pg_password']}@\
+    {config['dbSettings']['host']}:{config['dbSettings']['port']}/{config['dbSettings']['database']}"
+database = databases.Database(db_url)
 
-auth = Authentication(
-    backend=EncodeDBBackend(
-        database=databases(
-            host=config["dbSettings"]["host"],
-            port=config["dbSettings"]["port"],
-            user=config["dbSettings"]["pg_username"],
-            password=config["dbSettings"]["pg_password"],
-            database=config["dbSettings"]["database"],
-        ),
-    )
-)
+auth = Authentication(backend=EncodeDBBackend(database=database))

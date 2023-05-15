@@ -21,6 +21,11 @@ config = conf_helper.read_configuration()
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
+app.include_router(db.auth.auth_router, prefix="/api/users")
+app.include_router(db.auth.password_router, prefix="/api/users")
+app.include_router(db.auth.admin_router, prefix="/api/users")
+app.include_router(db.auth.search_router, prefix="/api/users")
+
 # This will be deleted later, just for testing purposes.
 # s3_handler = AWS("eu-west-1", config["AWS"]["aws_access_key_id"], config["AWS"]["aws_secret_access_key"])
 # file_name = Path("static/mp3/music.mp3")
