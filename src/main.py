@@ -6,18 +6,20 @@ from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 from uuid import UUID
 from utils.middleware import AWS
+from authx import Authentication, EncodeDBBackend, HTTPCache, cache
 from pathlib import Path
 import logging
 import re
 
 import db.database as db
-from utils import conf_helper
-from db import schemas, crud, models
+import cache.redis_conf as rd
+from db import schemas
 
 
 app = FastAPI()
+auth = Authentication(backend=EncodeDBBackend(database=db.database, users=db.users, email_confirmation=db.email_confirmation))
+HTTPCache.init(redis_url=rd.REDIS_URL, namespace='breviocast_cache')
 templates = Jinja2Templates(directory="templates")
-config = conf_helper.read_configuration()
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
@@ -33,12 +35,12 @@ app.include_router(db.auth.search_router, prefix="/api/users")
 
 
 @app.get("/", response_class=HTMLResponse)
-def index(request: Request):
+@cache(key="c.home", ttl_in_seconds=180)
+async def index(request: Request):
     """
     Index route.
     """
     return templates.TemplateResponse("index.html", {"request": request, "title": "BrevioCast"})
-
 
 @app.get("/signup/", response_class=HTMLResponse)
 def signup(request: Request):
