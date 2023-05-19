@@ -1,9 +1,8 @@
 from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pathlib import Path
-
 
 app = FastAPI()
 templates = Jinja2Templates(directory=Path("../frontend"))
@@ -15,15 +14,20 @@ async def homepage(request: Request):
     """Index"""
     return templates.TemplateResponse("home.html", {"request": request})
 
-@app.get('/register.html', response_class=HTMLResponse)
-async def signup(request: Request):
+@app.get('/register.html')
+async def signup():
     """Sign up"""
-    return templates.TemplateResponse("register.html", {"request": request})
+    return {"message":"Account handling in construction, please comeback later"} # TODO: Make an actual FE for this
 
-@app.get('/signin.html', response_class=HTMLResponse)
-async def signin(request: Request):
+@app.get('/signin.html')
+async def signin():
     """Sign in"""
-    return templates.TemplateResponse("signin.html", {"request": request})
+    return {"message":"Account handling in construction, please comeback later"} # TODO: Make an actual FE for this
+
+@app.exception_handler(404)
+def not_found(request: Request, __):
+    """Not found redirection"""
+    return templates.TemplateResponse("404.html", {"request": request})
 
 @app.get('/browse', response_class=HTMLResponse)
 async def browse(request: Request):
