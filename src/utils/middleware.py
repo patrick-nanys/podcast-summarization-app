@@ -18,6 +18,7 @@ class AWS:
         self.client = boto3.client(
             "s3", region_name=self.region, aws_access_key_id=self.key_id, aws_secret_access_key=self.access_key
         )
+        self.session = boto3.Session(aws_access_key_id=self.key_id, aws_secret_access_key=self.access_key)
 
     def upload_to_bucket(self, filename: str, bucket: str, object_name=None):
         """
@@ -38,3 +39,17 @@ class AWS:
             logging.error(e)
             return False
         return True
+
+    def read_from_bucket(self, bucket: str):
+        """
+        Read bucket content.
+        """
+        content = []
+        try:
+            s3 = self.session.resource('s3')
+            bucket = s3.Bucket(bucket)
+            for obj in bucket.objects.all():
+                content.append(obj.key)
+            return content
+        except ClientError as e:
+            return f"Some error occured, details: {e}"
