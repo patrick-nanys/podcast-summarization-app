@@ -54,3 +54,14 @@ class AWS:
             return json.dumps(content)
         except ClientError as e:
             return f"Some error occured, details: {e}"
+
+    def fetch_podcast_from_bucket(self, bucket: str, id: int):
+        """
+        Get a podcast from the bucket by object key.
+        """
+        try:
+            s3 = self.client
+            result = s3.get_object(Bucket=bucket, Key="path/to/file") # TODO: check how to fetch a specific podcast
+            return json.dumps(result)
+        except ClientError as e:
+            return f"Some error occured, details: {e}"

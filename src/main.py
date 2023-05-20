@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Request, Form, HTTPException
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pathlib import Path
@@ -67,4 +67,12 @@ async def browse(request: Request):
 @app.get('/podcast/{id}', response_class=HTMLResponse)
 async def podcast(request: Request):
     """Podcast"""
+    try:
+        file_metadata = s3_handler.fetch_podcast_from_bucket(bucket=config["AWS"]["bucket"], id=id)
+        file =  StreamingResponse(content=file_metadata["Body"].iter_chunks()) # TODO: process this
+    except Exception as e:
+        logging.exception(f"caught exception: {e}")
+        return HTTPException(
+            status_code=500, detail="Server timeout, please try again."
+        )
     return templates.TemplateResponse("explore.html", {"request": request})
