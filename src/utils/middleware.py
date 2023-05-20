@@ -2,6 +2,7 @@
 import boto3
 import os
 import logging
+import json
 
 from botocore.exceptions import ClientError
 
@@ -50,6 +51,6 @@ class AWS:
             bucket = s3.Bucket(bucket)
             for obj in bucket.objects.all():
                 content.append(obj.key)
-            return content
+            return json.dumps(content)
         except ClientError as e:
             return f"Some error occured, details: {e}"

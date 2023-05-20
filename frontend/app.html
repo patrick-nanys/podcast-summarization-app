@@ -114,8 +114,10 @@
     <br>
     <div style="text-align:center">
         <h3 style=>Request to add your custom podcast</h3>
-        <input type = 'text' id = 'link', value="Enter youtube link">
-        <input type = 'submit' id = 'submit', value ='submit'>
+        <form method="POST" action="/request">
+            <input type = 'text' id = 'link' name="url" value="Enter youtube link">
+            <input type = 'submit' id = 'submit' value ='submit'>
+        </form>
     </div>   
     </div>
 
