@@ -3,7 +3,6 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pathlib import Path
-from typing import Optional
 from utils import conf_helper
 from utils.middleware import AWS
 import re
@@ -16,7 +15,7 @@ config = conf_helper.read_configuration()
 
 s3_handler = AWS(config["AWS"]["region"], config["AWS"]["aws_access_key_id"], config["AWS"]["aws_secret_access_key"])
 
-# print(s3_handler.read_from_bucket(config["AWS"]["bucket"]))
+# print(s3_handler.list_bucket_content(config["AWS"]["bucket"]))
 
 @app.exception_handler(404)
 def not_found(request: Request, __):

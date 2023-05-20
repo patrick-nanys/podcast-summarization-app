@@ -41,7 +41,7 @@ class AWS:
             return False
         return True
 
-    def read_from_bucket(self, bucket: str):
+    def list_bucket_content(self, bucket: str):
         """
         Read bucket content.
         """
