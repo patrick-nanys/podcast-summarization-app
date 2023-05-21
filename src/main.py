@@ -64,12 +64,13 @@ async def browse(request: Request):
                 status_code=500, detail="Server timeout, please try again."
             )
 
-@app.get('/podcast/{id}', response_class=HTMLResponse)
-async def podcast(request: Request):
+@app.get('/podcast/?name={name}', response_class=HTMLResponse)
+async def podcast(name: str, request: Request):
     """Podcast"""
     try:
-        file_metadata = s3_handler.fetch_podcast_from_bucket(bucket=config["AWS"]["bucket"], id=id)
+        file_metadata = s3_handler.fetch_podcast_from_bucket(bucket=config["AWS"]["bucket"], name=name)
         file =  StreamingResponse(content=file_metadata["Body"].iter_chunks()) # TODO: process this
+        print(file)
     except Exception as e:
         logging.exception(f"caught exception: {e}")
         return HTTPException(
