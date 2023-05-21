@@ -62,6 +62,6 @@ class AWS:
         try:
             s3 = self.client
             result = s3.get_object(Bucket=bucket, Key="podcasts/"+name)
-            return json.dumps(result)
+            return result
         except ClientError as e:
             return f"Some error occured, details: {e}"

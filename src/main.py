@@ -1,5 +1,6 @@
+import json
 from fastapi import FastAPI, Request, Form, HTTPException
-from fastapi.responses import HTMLResponse, RedirectResponse, StreamingResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pathlib import Path
@@ -15,7 +16,7 @@ config = conf_helper.read_configuration()
 
 s3_handler = AWS(config["AWS"]["region"], config["AWS"]["aws_access_key_id"], config["AWS"]["aws_secret_access_key"])
 
-# print(s3_handler.list_bucket_content(config["AWS"]["bucket"]))
+print(s3_handler.list_bucket_content(config["AWS"]["bucket"]))
 
 @app.exception_handler(404)
 def not_found(request: Request, __):
@@ -64,16 +65,15 @@ async def browse(request: Request):
                 status_code=500, detail="Server timeout, please try again."
             )
 
-@app.get('/podcast/?name={name}', response_class=HTMLResponse)
+@app.get('/podcast/', response_class=HTMLResponse)
 async def podcast(name: str, request: Request):
     """Podcast"""
     try:
         file_metadata = s3_handler.fetch_podcast_from_bucket(bucket=config["AWS"]["bucket"], name=name)
-        file =  StreamingResponse(content=file_metadata["Body"].iter_chunks()) # TODO: process this
-        print(file)
+        content = json.loads(file_metadata["Body"].read())
     except Exception as e:
         logging.exception(f"caught exception: {e}")
         return HTTPException(
             status_code=500, detail="Server timeout, please try again."
         )
-    return templates.TemplateResponse("explore.html", {"request": request})
+    return JSONResponse(content=content) # TODO: pass it as a context variable to the FE
