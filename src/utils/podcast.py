@@ -1,8 +1,8 @@
 """Podcast middleware"""
 from fastapi.responses import StreamingResponse
 import json
-import conf_helper
-from middleware import AWS
+from . import conf_helper
+from .middleware import AWS
 
 config = conf_helper.read_configuration()
 s3_handler = AWS(config["AWS"]["region"], config["AWS"]["aws_access_key_id"], config["AWS"]["aws_secret_access_key"])
