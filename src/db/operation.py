@@ -9,4 +9,4 @@ def push_podcast_to_db(db: Session, podcast: schema.AddPodcast):
     db.add(db_podcast)
     db.commit()
     db.refresh(db_podcast)
-
+    return db_podcast
