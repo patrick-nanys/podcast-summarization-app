@@ -1,8 +1,10 @@
-from fastapi import FastAPI, Request, Depends, HTTPException
-from fastapi.responses import HTMLResponse, RedirectResponse, StreamingResponse
+from fastapi import FastAPI, Request, Depends, HTTPException, Form
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pathlib import Path
+from sqlalchemy import func
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 from db import model, operation, schema
 from db.database import SessionLocal, engine
@@ -49,20 +51,21 @@ async def signin():
     return {"message":"Account handling in construction, please comeback later"} # TODO: Make an actual FE for this
 
 @app.get('/browse/', response_class=HTMLResponse)
-@app.post('/request/', response_model=schema.PodcastBase)
-async def browse(request: Request, podcast: schema.AddPodcast, db: Session = Depends(get_db)):
+@app.post('/request/')
+async def browse(request: Request, url: str = Form(...), db: Session = Depends(get_db)):
     """Browse"""
     if request.method == "GET":
         return templates.TemplateResponse("app.html", {"request": request})
     elif request.method == "POST":
         ytb_regex_pattern = r"^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?.*v=|v\/)|youtu\.be\/)([\w\-]{11})(?:$|[^\w\-])"
         try:
-            form_data = await request.form()
-            url = form_data["url"]
             match = re.search(ytb_regex_pattern, url)
             if match:
-                podcast.link = url
-                operation.push_podcast_to_db(db=db, podcast=podcast)
+                next_id = db.query(func.max(model.Podcast.id)).scalar() or 0
+                db_podcast = model.Podcast(id=next_id + 1, link=url)
+                db.add(db_podcast)
+                db.commit()
+                db.refresh(db_podcast)
                 return {"message": f"your link {url} was submitted successfully!"} # TODO: Make an actual FE for this
             else:
                 return RedirectResponse(url="/browse/", status_code=303) # TODO: Show an error in the FE

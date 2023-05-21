@@ -3,7 +3,7 @@
 from sqlalchemy.orm import Session
 from . import model, schema
 
-def push_podcast_to_db(db: Session, podcast: schema.AddPodcast):
+def push_podcast_to_db(db: Session, podcast: schema.Podcast):
     """Add requested link to the database"""
     db_podcast = model.Podcast(id=podcast.id, link=podcast.link)
     db.add(db_podcast)
