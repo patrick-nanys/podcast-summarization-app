@@ -17,7 +17,7 @@ config = conf_helper.read_configuration()
 
 s3_handler = AWS(config["AWS"]["region"], config["AWS"]["aws_access_key_id"], config["AWS"]["aws_secret_access_key"])
 
-print(s3_handler.list_bucket_content(config["AWS"]["bucket"]))
+# print(s3_handler.list_bucket_content(config["AWS"]["bucket"]))
 
 @app.exception_handler(404)
 def not_found(request: Request, __):
@@ -90,7 +90,7 @@ async def podcast(name: str, request: Request):
             podcast_summary_txt = s3_handler.fetch_podcast_from_bucket(bucket=config["AWS"]["bucket"], name=name+"/"+podcast_name+"_summarized_text.json")
             podcast_summary_txt_result = json.loads(podcast_summary_txt["Body"].read())
             # csv
-            podcast_transcription_csv = s3_handler.fetch_podcast_from_bucket(bucket=config["AWS"]["bucket"], name="naval_how_to_get_rich"+"/"+"How to Get Rich"+"_transcription.csv")
+            podcast_transcription_csv = s3_handler.fetch_podcast_from_bucket(bucket=config["AWS"]["bucket"], name=name+"/"+podcast_name+"_transcription.csv")
             def iter_csv_content():
                 for chunk in podcast_transcription_csv["Body"].iter_chunks():
                     yield chunk
