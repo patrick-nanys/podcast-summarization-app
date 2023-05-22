@@ -72,6 +72,7 @@ def load_files_and_timestamps(target_dir, target_file_name, output_directory):
         )
 
     df = pd.concat(dfs).reset_index(drop=True)
+    df["text"] = df["text"].astype(str)
 
     final_lines = " ".join(df["text"])
 
