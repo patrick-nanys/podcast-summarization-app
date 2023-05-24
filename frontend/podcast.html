@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Podcast</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+    <link rel='stylesheet' , href='/static/css/app.css'>
+</head>
+<body>
+    <div class='topnav'>
+        <div class='logo'>BrevioCast </div>
+        <a href='/browse'>Back</a>
+    </div>
+
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-12">
+                <h1>{{ podcast_name }}</h1>
+                <hr>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <h4>Podcast Summary</h4>
+                <p>{{ podcast_summary_txt_result }}</p>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <h4>Listen to the Podcast</h4>
+                <audio controls>
+                    <source src="/audio/{{ name_id }}" type="audio/mpeg">
+                    Your browser does not support the audio element.
+                </audio>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</body>
+</html>

@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Request, Depends, HTTPException, Form
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pathlib import Path
@@ -10,9 +10,10 @@ from db import model, operation, schema
 from db.database import SessionLocal, engine
 from utils import conf_helper
 from utils.middleware import AWS
-from utils.podcast import get_podcast_data_by_name
+from utils.podcast import get_basic_podcast_data_by_name
 import re
 import logging
+import uuid
 
 app = FastAPI()
 templates = Jinja2Templates(directory=Path("../frontend"))
@@ -40,57 +41,83 @@ async def homepage(request: Request):
     """Index"""
     return templates.TemplateResponse("home.html", {"request": request})
 
-@app.get('/register.html')
+@app.get('/register')
 async def signup():
     """Sign up"""
     return {"message":"Account handling in construction, please comeback later"} # TODO: Make an actual FE for this
 
-@app.get('/signin.html')
+@app.get('/signin')
 async def signin():
     """Sign in"""
     return {"message":"Account handling in construction, please comeback later"} # TODO: Make an actual FE for this
 
-@app.get('/browse/', response_class=HTMLResponse)
-@app.post('/request/')
-async def browse(request: Request, url: str = Form(...), db: Session = Depends(get_db)):
+@app.get('/browse', response_class=HTMLResponse)
+async def browse(request: Request):
     """Browse"""
-    if request.method == "GET":
-        return templates.TemplateResponse("app.html", {"request": request})
-    elif request.method == "POST":
-        ytb_regex_pattern = r"^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?.*v=|v\/)|youtu\.be\/)([\w\-]{11})(?:$|[^\w\-])"
-        try:
-            match = re.search(ytb_regex_pattern, url)
-            if match:
-                next_id = db.query(func.max(model.Podcast.id)).scalar() or 0
-                db_podcast = model.Podcast(id=next_id + 1, link=url)
-                db.add(db_podcast)
-                db.commit()
-                db.refresh(db_podcast)
-                return {"message": f"your link {url} was submitted successfully!"} # TODO: Make an actual FE for this
-            else:
-                return RedirectResponse(url="/browse/", status_code=303) # TODO: Show an error in the FE
-        except Exception as e:
-            logging.exception(f"caught exception: {e}")
-            return HTTPException(
-                status_code=500, detail="Server timeout, please try again."
-            )
+    podcast_names = s3_handler.list_podcast_names('breviocast-prod', 'podcasts')
+    podcast_names_items = list(podcast_names.items())
+    sliced_podcast_names = [podcast_names_items[i::3] for i in range(3)]
 
-@app.get('/podcast/', response_class=HTMLResponse)
+    return templates.TemplateResponse("app.html", {"request": request, "sliced_podcast_names": sliced_podcast_names})
+
+        
+@app.post('/request/')
+async def request(request: Request, url: str = Form(...), db: Session = Depends(get_db)):
+    ytb_regex_pattern = r"^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?.*v=|v\/)|youtu\.be\/)([\w\-]{11})(?:$|[^\w\-])"
+    try:
+        match = re.search(ytb_regex_pattern, url)
+        if match:
+            next_id = db.query(func.max(model.Podcast.id)).scalar() or 0
+            db_podcast = model.Podcast(id=next_id + 1, link=url)
+            db.add(db_podcast)
+            db.commit()
+            db.refresh(db_podcast)
+            return {"message": f"your link {url} was submitted successfully!"} # TODO: Make an actual FE for this
+        else:
+            raise HTTPException(status_code=403, detail="You tried a url that is not supported!")
+    except Exception as e:
+        logging.exception(f"caught exception: {e}")
+        raise HTTPException(
+            status_code=500, detail="Server timeout, please try again."
+        )
+    
+@app.post('/simple_request')
+async def simple_request(requested_url: str = Form(...)):
+    ytb_regex_pattern = r"^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?.*v=|v\/)|youtu\.be\/)([\w\-]{11})(?:$|[^\w\-])"
+    try:
+        match = re.search(ytb_regex_pattern, requested_url)
+        if match:
+            request_id = id = uuid.uuid4()
+            s3_handler.upload_string_as_file_to_s3(config["AWS"]["bucket"], f'requests/{request_id}.txt', requested_url)
+            return {"message": f"Your link was submitted successfully!"} # TODO: Make an actual FE for this
+    except Exception as e:
+        logging.exception(f"caught exception: {e}")
+        raise HTTPException(status_code=500, detail="Server timeout, please try again.")
+    
+    raise HTTPException(status_code=403, detail="You tried a url that is not supported!")
+
+@app.get("/audio/{name}")
+async def main(name: str):
+    try:
+        audio_file_obj = s3_handler.fetch_podcast_from_bucket(bucket=config["AWS"]["bucket"], name=name+"/read_summary.mp3")
+        return StreamingResponse(audio_file_obj['Body'], media_type="audio/mpeg")
+    except Exception as e:
+        return str(e)
+    
+@app.get('/podcast', response_class=HTMLResponse)
 async def podcast(name: str, request: Request):
     """Podcast"""
     try:
-        json_results = get_podcast_data_by_name(name)
+        json_results = get_basic_podcast_data_by_name(name)
+        response = {
+                        "request": request,
+                        "name_id": name,
+                        "podcast_name": json_results["Name"],
+                        "podcast_summary_txt_result": json_results["Summary"]
+                    }
     except Exception as e:
         logging.exception(f"caught exception: {e}")
         return HTTPException(
             status_code=500, detail="Server timeout, please try again."
         )
-    return templates.TemplateResponse("app.html",
-                                        {
-                                            "request": request,
-                                            "podcast_chunks_start_timestamps_result":json_results["Timestamps"],
-                                            "json_content_chunks":json_results["Chunks"],
-                                            "podcast_mp3_summary_result":json_results["MP3"],
-                                            "podcast_summary_txt_result":json_results["Summary"],
-                                            "podcast_transcription_csv_result":json_results["CSV"],
-                                        })
+    return templates.TemplateResponse("podcast.html", response)

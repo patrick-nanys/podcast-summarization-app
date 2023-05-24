@@ -1,139 +1,109 @@
-
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <link rel = 'stylesheet' , href = 'static\css\app.css'>
- 
-
+    <link rel='stylesheet' , href='/static/css/app.css'>
 </head>
-<body>
-    <style>
-        
 
-    </style>
-    
-   <!--Header of the page-->
-    <div class = 'topnav'>
-        <div class = 'logo'>BrevioCast </div>
-        <a href = '#'>Logout</a>
+<body>
+    <!--Header of the page-->
+    <div class='topnav'>
+        <div class='logo'>BrevioCast </div>
+        <a href='/'>Home</a>
     </div>
     <!--content page-->
     <!-- column one of the page-->
-    <br> <br> 
-    <div style="text-align:center">
+
+    <div style="text-align:center" class="screen-container">
         <h2 style=>Listen to summaries of our hand picked popular podcasts</h2>
-    <br> <br>
-    <div class="scroll-container">
-        <div class="gridscroll">
-            <div class="row">
-            <!-- div class="row"> -->
-                <div class="column" style="background-color:white;">
-                <!--nothing-->
-                </div>
-                <div class="column" style="background-color:white;">
-                    <!--first column-->
+        <div class="new-container">
+            {% for podcast_group in sliced_podcast_names %}
+            <div class="new-row">
+                {% for folder_name, podcast_name in podcast_group %}
+                <a href="/podcast?name={{ folder_name }}">
                     <div class="card">
-                        <img src="static\images\podcast.png" alt="Avatar" style="width:100%">
+                        <img src="/static/images/podcast.png" alt="Avatar" style="width:100%">
                         <div class="container">
-                            <h4><b>Podcast 1</b></h4> 
-                            <p>Joe roegan</p> 
+                            <h4><b>{{ podcast_name }}</b></h4>
+                            <p>Andrew tate</p>
                         </div>
-                    </div> <br>
-                    <div class="card">
-                        <img src="static\images\podcast.png" alt="Avatar" style="width:100%">
-                        <div class="container">
-                            <h4><b>Podcast 2</b></h4> 
-                            <p>Joe biden</p> 
-                        </div> <br>    
-                    </div><br>        
-                    <div class="card">
-                        <img src="static\images\podcast.png" alt="Avatar" style="width:100%">
-                        <div class="container">
-                            <h4><b>Podcast 3</b></h4> 
-                            <p>James clark</p> 
-                        </div>  
-                    </div>                  
-                </div>
-                <div class="column" style="background-color:white;">
-                    <!--second column-->
-                    <div class="card">
-                        <img src="static\images\podcast.png" alt="Avatar" style="width:100%">
-                        <div class="container">
-                            <h4><b>Podcast 4</b></h4> 
-                            <p>Andrew tate</p> 
-                        </div>
-                    </div> <br>
-                    <div class="card">
-                        <img src="static\images\podcast.png" alt="Avatar" style="width:100%">
-                        <div class="container">
-                            <h4><b>Podcast 5</b></h4> 
-                            <p>Sadhguru</p> 
-                        </div> <br>    
-                    </div><br>        
-                    <div class="card">
-                        <img src="static\images\podcast.png" alt="Avatar" style="width:100%">
-                        <div class="container">
-                            <h4><b>Podcast 6</b></h4> 
-                            <p>Beer Biceps</p> 
-                        </div>  
-                    </div>                  
-                </div>
-                <div class="column" style="background-color:white;">
-                    <!--third column-->
-                    <div class="card">
-                        <img src="static\images\podcast.png" alt="Avatar" style="width:100%">
-                        <div class="container">
-                            <h4><b>Podcast 7</b></h4> 
-                            <p>Viktor orban</p> 
-                        </div>
-                    </div> <br>
-                    <div class="card">
-                        <img src="static\images\podcast.png" alt="Avatar" style="width:100%">
-                        <div class="container">
-                            <h4><b>Podcast 8</b></h4> 
-                            <p>Donald Trump</p> 
-                        </div> <br>    
-                    </div><br>        
-                    <div class="card">
-                        <img src="static\images\podcast.png" alt="Avatar" style="width:100%">
-                        <div class="container">
-                            <h4><b>Podcast 9</b></h4> 
-                            <p>Linkletter</p> 
-                        </div>  
-                    </div>                  
-                </div>
-                
+                    </div>
+                </a>
+                {% endfor %}
             </div>
+            {% endfor %}
+
         </div>
 
-    </div>
-    <br>
-    <div style="text-align:center">
-        <h3 style=>Request to add your custom podcast</h3>
-        <form method="POST" action="/request">
-            <input type = 'text' id = 'link' name="url" value="Enter youtube link">
-            <input type = 'submit' id = 'submit' value ='submit'>
-        </form>
-    </div>   
-    </div>
-
-
-
+        <div style="text-align:center">     
+            <h3>Request to add your custom podcast</h3>
+            <div id='message'></div>
+            <form id='myForm'>
+                <input type='text' id='link' name="requested_url" placeholder="Enter youtube link">
+                <input type='submit' id='submit' value='submit'>
+            </form>
+        </div>
         
-
-
+        <style>
+        .success {
+            color: green;
+        }
+        .error {
+            color: red;
+        }
+        </style>
+        
+        <script>
+        document.getElementById('myForm').addEventListener('submit', function(event) {
+            event.preventDefault();  // Prevent the form from submitting normally
+        
+            let url = '/simple_request';
+            let formData = new FormData(this);
+        
+            fetch(url, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw response;
+                }
+                return response.json();
+            })
+            .then(data => {
+                let messageElement = document.getElementById('message');
+                messageElement.innerText = data.message;
+                messageElement.className = 'success';
+            })
+            .catch((error) => {
+                if (typeof error.text === 'function') {
+                    error.text().then(errorMessage => {
+                        let messageElement = document.getElementById('message');
+                        messageElement.innerText = errorMessage;
+                        messageElement.className = 'error';
+                    });
+                } else {
+                    console.error('Error:', error);
+                }
+            });
+        });
+        </script>
+        
+        
         
     </div>
+
     <!--Footer of the page-->
-    <div class ='footer'>
+    <div class='footer'>
 
     </div>
 
 
 
 </body>
+
 </html>

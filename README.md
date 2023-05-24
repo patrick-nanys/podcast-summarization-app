@@ -39,8 +39,8 @@ To run this application, follow the steps below:
 ## Usage
 
 - Home (`/`) - It serves the home page of the application.
-- Registration (`/register.html`) - The endpoint to register a new user (under construction).
-- Sign In (`/signin.html`) - The endpoint to authenticate a user (under construction).
+- Registration (`/register`) - The endpoint to register a new user (under construction).
+- Sign In (`/signin`) - The endpoint to authenticate a user (under construction).
 - Browse (`/browse/`) - It serves the browse page of the application where users can submit YouTube links to be stored in the database. On POST request, it handles the link submission.
 - Podcast (`/podcast/`) - Fetches podcast data based on the name from S3 bucket.
 

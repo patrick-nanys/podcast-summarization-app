@@ -49,3 +49,15 @@ def get_podcast_data_by_name(name: str):
             "CSV":podcast_transcription_csv_result,
         }
 
+def get_basic_podcast_data_by_name(name: str):
+    podcast_config_obj = s3_handler.fetch_podcast_from_bucket(bucket=config["AWS"]["bucket"], name=name+"/config.json")
+    podcast_name = json.loads(podcast_config_obj["Body"].read())['name']
+
+    podcast_summary_txt_obj = s3_handler.fetch_podcast_from_bucket(bucket=config["AWS"]["bucket"], name=name+"/summarized_text.json")
+    podcast_summary_txt_result = json.loads(podcast_summary_txt_obj["Body"].read())
+
+    return {
+            "Name": podcast_name,
+            "Summary": podcast_summary_txt_result
+        }
+
