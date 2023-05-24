@@ -80,10 +80,10 @@
                 messageElement.className = 'success';
             })
             .catch((error) => {
-                if (typeof error.text === 'function') {
-                    error.text().then(errorMessage => {
+                if (typeof error.text === 'function') {                    
+                    error.json().then(errorMessage => {
                         let messageElement = document.getElementById('message');
-                        messageElement.innerText = errorMessage;
+                        messageElement.innerText = errorMessage.detail;
                         messageElement.className = 'error';
                     });
                 } else {
