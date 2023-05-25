@@ -11,6 +11,7 @@
   background-color: black;
   padding: 10px;
   width: 100%;
+  font-family: Arial, sans-serif;
 }
 
 .topnav a {
@@ -65,8 +66,9 @@
 .card {
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
   transition: 0.3s;
-  width: 70%;
+  width: 80%; /* This line will make sure each card takes up the full width */
   margin-bottom: 10px;
+  height: 100%; /* This line will make sure each card takes up the full height */
 }
 
 .card:hover {
@@ -117,7 +119,8 @@ input[type=submit] {
   cursor: pointer;
 }
 
-html, body {
+html,
+body {
   height: 100%;
   margin: 0;
   padding: 0;
@@ -136,11 +139,25 @@ html, body {
 .new-row {
   display: flex;
   flex-direction: column;
+  justify-content: space-between; /* This line will distribute the space evenly between the items */
   width: 33.33%;
+  height: 100%; /* This line will make sure each new-row div takes up the full height */
 }
 
 .new-tile {
   margin: 10px;
   border: 1px solid black;
   padding: 10px;
+}
+
+h2 {
+  font-size: 5vw;
+}
+
+h3 {
+  font-size: 5vw;
+}
+
+.container h4 {
+  font-size: 1.8vw;
 }

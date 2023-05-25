@@ -49,15 +49,18 @@ def get_podcast_data_by_name(name: str):
             "CSV":podcast_transcription_csv_result,
         }
 
-def get_basic_podcast_data_by_name(name: str):
-    podcast_config_obj = s3_handler.fetch_podcast_from_bucket(bucket=config["AWS"]["bucket"], name=name+"/config.json")
-    podcast_name = json.loads(podcast_config_obj["Body"].read())['name']
+def get_json_object_from_s3(podcast_name: str, file_name: str):
+    obj = s3_handler.fetch_podcast_from_bucket(bucket=config["AWS"]["bucket"], name=podcast_name + f"/{file_name}")
+    return json.loads(obj["Body"].read())
 
-    podcast_summary_txt_obj = s3_handler.fetch_podcast_from_bucket(bucket=config["AWS"]["bucket"], name=name+"/summarized_text.json")
-    podcast_summary_txt_result = json.loads(podcast_summary_txt_obj["Body"].read())
+def get_basic_podcast_data_by_name(name: str):
+    podcast_name = get_json_object_from_s3(name, 'config.json')['name']
+    chunks = get_json_object_from_s3(name, 'chunks.json')
+    chunk_start_times = get_json_object_from_s3(name, 'chunk_start_timestamps.json')
 
     return {
             "Name": podcast_name,
-            "Summary": podcast_summary_txt_result
+            "Chunks": chunks,
+            "ChunkStartTimes": chunk_start_times
         }
 

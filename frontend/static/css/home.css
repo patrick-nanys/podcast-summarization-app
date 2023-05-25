@@ -1,0 +1,75 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+.topnav {
+    overflow: hidden;
+    background-color: black;
+    padding: 10px;
+    width: 100%;
+    font-family: Arial, sans-serif;
+}
+
+.topnav a {
+    float: right;
+    display: block;
+    color: #f2f2f2;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+    font-size: 30px;
+    margin-right: 25px;
+}
+
+/* Change color on hover */
+.topnav a:hover {
+    background-color: #ddd;
+    color: black;
+}
+
+.logo {
+    text-align: left;
+    font-size: 55px;
+    color: whitesmoke;
+    float: left;
+    margin-left: 25px;
+}
+
+.main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.image-caption {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.center {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 50%;
+}
+
+.button-container {
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+}
+
+.browse-button {
+    padding: 10px 20px;
+    background-color: #007BFF;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+}
+
+.button-caption {
+    text-align: center;
+    margin-bottom: 20px;
+}

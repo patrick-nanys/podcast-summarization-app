@@ -14,6 +14,7 @@ from utils.podcast import get_basic_podcast_data_by_name
 import re
 import logging
 import uuid
+import time
 
 app = FastAPI()
 templates = Jinja2Templates(directory=Path("../frontend"))
@@ -22,6 +23,10 @@ model.Base.metadata.create_all(bind=engine)
 config = conf_helper.read_configuration()
 
 s3_handler = AWS(config["AWS"]["region"], config["AWS"]["aws_access_key_id"], config["AWS"]["aws_secret_access_key"])
+
+# some past time as initial time
+REFRESH_TIME = 1642886542
+PODCAST_NAMES = None
 
 # Dependency
 def get_db():
@@ -51,10 +56,19 @@ async def signin():
     """Sign in"""
     return {"message":"Account handling in construction, please comeback later"} # TODO: Make an actual FE for this
 
+def get_podcast_names():
+    global PODCAST_NAMES
+    now_time = time.time()
+    one_hour = 3600
+    if PODCAST_NAMES is None or now_time - REFRESH_TIME >= one_hour:
+        PODCAST_NAMES = s3_handler.list_podcast_names(config["AWS"]["bucket"], 'podcasts')
+
+    return PODCAST_NAMES
+
 @app.get('/browse', response_class=HTMLResponse)
 async def browse(request: Request):
     """Browse"""
-    podcast_names = s3_handler.list_podcast_names('breviocast-prod', 'podcasts')
+    podcast_names = get_podcast_names()
     podcast_names_items = list(podcast_names.items())
     sliced_podcast_names = [podcast_names_items[i::3] for i in range(3)]
 
@@ -113,7 +127,7 @@ async def podcast(name: str, request: Request):
                         "request": request,
                         "name_id": name,
                         "podcast_name": json_results["Name"],
-                        "podcast_summary_txt_result": json_results["Summary"]
+                        "chunks": list(zip(json_results["Chunks"], json_results["ChunkStartTimes"]))
                     }
     except Exception as e:
         logging.exception(f"caught exception: {e}")

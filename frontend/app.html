@@ -5,22 +5,23 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>BrevioCast</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
     <link rel='stylesheet' , href='/static/css/app.css'>
 </head>
 
 <body>
     <!--Header of the page-->
     <div class='topnav'>
-        <div class='logo'>BrevioCast </div>
+        <div class='logo'>BrevioCast</div>
         <a href='/'>Home</a>
     </div>
     <!--content page-->
     <!-- column one of the page-->
 
     <div style="text-align:center" class="screen-container">
-        <h2 style=>Listen to summaries of our hand picked popular podcasts</h2>
-        <div class="new-container">
+        <h2>Listen to summaries of our hand picked popular podcasts</h2>
+        <div class="new-container p-4">
             {% for podcast_group in sliced_podcast_names %}
             <div class="new-row">
                 {% for folder_name, podcast_name in podcast_group %}
@@ -28,8 +29,7 @@
                     <div class="card">
                         <img src="/static/images/podcast.png" alt="Avatar" style="width:100%">
                         <div class="container">
-                            <h4><b>{{ podcast_name }}</b></h4>
-                            <p>Andrew tate</p>
+                            <h4><b>{{ podcast_name|truncate(30, True) }}</b></h4>
                         </div>
                     </div>
                 </a>
@@ -96,13 +96,6 @@
         
         
     </div>
-
-    <!--Footer of the page-->
-    <div class='footer'>
-
-    </div>
-
-
 
 </body>
 

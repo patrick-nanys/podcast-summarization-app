@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Podcast</title>
+    <title>BrevioCast</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
-    <link rel='stylesheet' , href='/static/css/app.css'>
+    <link rel='stylesheet' , href='/static/css/podcast.css'>
 </head>
 <body>
     <div class='topnav'>
@@ -13,7 +13,7 @@
         <a href='/browse'>Back</a>
     </div>
 
-    <div class="container mt-4">
+    <div class="container mt-4 p-4">
         <div class="row">
             <div class="col-md-12">
                 <h1>{{ podcast_name }}</h1>
@@ -23,18 +23,28 @@
 
         <div class="row mt-4">
             <div class="col-md-12">
-                <h4>Podcast Summary</h4>
-                <p>{{ podcast_summary_txt_result }}</p>
-            </div>
-        </div>
-
-        <div class="row mt-4">
-            <div class="col-md-12">
-                <h4>Listen to the Podcast</h4>
+                <h4 class="mb-4">Listen to the Podcast Summary</h4>
                 <audio controls>
                     <source src="/audio/{{ name_id }}" type="audio/mpeg">
                     Your browser does not support the audio element.
                 </audio>
+            </div>
+        </div>
+
+        <!-- Displaying chunks and start times -->
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <h4 class="mb-4">Podcast Summary</h4>
+                <table id="chunks-table" class="table-no-border">
+                    {% for chunk, start_time in chunks %}
+                        <tr>
+                            <td><strong>[{{ start_time }}]</strong></td>
+                        </tr>
+                        <tr>
+                            <td>{{ chunk }}</td>
+                        </tr>
+                    {% endfor %}
+                </table>
             </div>
         </div>
     </div>
