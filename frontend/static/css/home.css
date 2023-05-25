@@ -73,3 +73,8 @@ body {
     text-align: center;
     margin-bottom: 20px;
 }
+
+.home-image {
+    border-radius: 50%;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+}

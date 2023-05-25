@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
     <link rel='stylesheet' , href='/static/css/podcast.css'>
 </head>
+
 <body>
     <div class='topnav'>
         <div class='logo'>BrevioCast </div>
@@ -37,18 +39,29 @@
                 <h4 class="mb-4">Podcast Summary</h4>
                 <table id="chunks-table" class="table-no-border">
                     {% for chunk, start_time in chunks %}
-                        <tr>
-                            <td><strong>[{{ start_time }}]</strong></td>
-                        </tr>
-                        <tr>
-                            <td>{{ chunk }}</td>
-                        </tr>
+                    <tr>
+                        <td><strong>[{{ start_time }}]</strong></td>
+                    </tr>
+                    <tr>
+                        <td>{{ chunk }}</td>
+                    </tr>
                     {% endfor %}
                 </table>
             </div>
         </div>
     </div>
 
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QHXBFF6C0M"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-QHXBFF6C0M');
+    </script>
+
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 </body>
+
 </html>
