@@ -81,7 +81,7 @@ def load_files_and_timestamps(target_dir, target_file_name, output_directory):
 
     if not os.path.isdir(output_directory):
         os.mkdir(output_directory)
-    df.to_csv(os.path.join(output_directory, target_file_name_base + "_transcription.csv"), index=False, sep=";")
+    df.to_csv(os.path.join(output_directory, "transcription.csv"), index=False, sep=";")
 
     token_sums = [0] + list(df["token_sum"])
     timestamp_values = list(df["end"])
@@ -122,11 +122,11 @@ def workflow(video_url, video_download_folder, output_directory, ELEVENLABS_API_
 
     input_text, chunks, chunk_start_timestamps = summarize_text(text, timestamps_dict)
 
-    with open(os.path.join(output_directory, target_file_name_base + "_summarized_text.json"), "w") as f:
+    with open(os.path.join(output_directory, "summarized_text.json"), "w") as f:
         json.dump(input_text, f, indent=2)
-    with open(os.path.join(output_directory, target_file_name_base + "_chunks.json"), "w") as f:
+    with open(os.path.join(output_directory, "chunks.json"), "w") as f:
         json.dump(chunks, f, indent=2)
-    with open(os.path.join(output_directory, target_file_name_base + "_chunk_start_timestamps.json"), "w") as f:
+    with open(os.path.join(output_directory, "chunk_start_timestamps.json"), "w") as f:
         json.dump(chunk_start_timestamps, f, indent=2)
 
     # Check if ElevenLabs can be used
@@ -146,8 +146,16 @@ def workflow(video_url, video_download_folder, output_directory, ELEVENLABS_API_
     # TTS with elevenlabs
 
     elevenlabs_tts(
-        chunks, ELEVENLABS_API_KEY, "Adam", os.path.join(output_directory, target_file_name_base + "_read_summary.mp3")
+        chunks, ELEVENLABS_API_KEY, "Adam", os.path.join(output_directory, "read_summary.mp3")
     )  # Male voice
+
+    # create config
+
+    config = {
+        'name': target_file_name_base
+    }
+    with open(os.path.join(output_directory, 'config.json'), 'w') as f:
+        json.dump(config, f)
 
     # upload to s3 bucket
 

@@ -70,7 +70,9 @@ def whisper_asr(target_file_name):
             if not first_file_write:
                 if lines:
                     with open(f"{target_file_name}_{file_number}.csv", "w") as file:
-                        file.writelines(lines)
+                        for line in lines:
+                            file.write(line)
+                            file.write('\n')
                         file_number += 1
                         lines = []
             else:
@@ -80,7 +82,9 @@ def whisper_asr(target_file_name):
 
     # at the end the buffer is always written out
     with open(f"{target_file_name}_{file_number}.csv", "w") as file:
-        file.writelines(lines)
+        for line in lines:
+            file.write(line)
+            file.write('\n')
 
     # metadata returned by the model is saved as well
     with open(f"{target_file_name}_misc.txt", "w") as file:
